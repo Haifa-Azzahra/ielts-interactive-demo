@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Writing Coach</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#FAFAF7;color:#1a1a1a}
+.screen{display:none;padding:24px;max-width:780px;margin:0 auto}
+.screen.active{display:block}
+.progress-bar-wrap{width:100%;height:4px;background:#e0ddd6;position:sticky;top:0;z-index:10}
+.progress-bar-fill{height:4px;background:#1F4E79;transition:width 0.4s ease}
+h1{font-size:22px;font-weight:500;color:#1F4E79;margin-bottom:8px}
+.btn{padding:10px 20px;border:1.5px solid #1F4E79;background:transparent;color:#1F4E79;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.15s,color 0.15s}
+.btn:hover{background:#1F4E79;color:#fff}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.btn-primary{background:#1F4E79;color:#fff}
+.btn-primary:hover{background:#163a5c}
+.btn-sm{padding:7px 14px;font-size:13px}
+.task-btn{padding:10px 24px;border:1.5px solid #1F4E79;background:transparent;color:#1F4E79;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;margin-right:8px}
+.task-btn.active{background:#1F4E79;color:#fff}
+.goal-box{background:#EEEDFE;border-left:3px solid #534AB7;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px;color:#3C3489}
+textarea{width:100%;padding:12px;border:1px solid #d0ccc4;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;background:#fff;color:#1a1a1a;min-height:180px}
+textarea:focus{outline:none;border-color:#1F4E79}
+input[type=text]{width:100%;padding:10px 12px;border:1px solid #d0ccc0;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a}
+input[type=text]:focus{outline:none;border-color:#1F4E79}
+.word-count{font-size:12px;color:#888;margin-top:4px;text-align:right}
+.card{background:#fff;border:0.5px solid #d0ccc0;border-radius:12px;padding:16px 20px;margin-bottom:12px}
+.badge{display:inline-block;background:#EEEDFE;color:#3C3489;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:500}
+.quote-block{border-left:3px solid #1F4E79;padding:10px 16px;background:#f5f4f0;border-radius:0 8px 8px 0;font-style:italic;font-size:14px;color:#333;margin:8px 0}
+.strategy-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.strategy-num{width:26px;height:26px;border-radius:50%;background:#1F4E79;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;margin-top:2px}
+.stronger-block{background:#f0f7f0;border:1px solid #c3dcc3;border-radius:8px;padding:14px;font-size:14px;color:#2a5a2a}
+.activity-sentence{padding:12px 16px;border:1.5px solid #d0ccc0;border-radius:8px;cursor:pointer;margin-bottom:8px;font-size:14px;background:#fff;transition:border-color 0.15s,background 0.15s;user-select:none}
+.activity-sentence.selected{border-color:#1F4E79;background:#eef3f8}
+.activity-sentence.correct{border-color:#4A8B4E;background:#f0f7f0;color:#2a5a2a}
+.activity-sentence.incorrect{border-color:#C4952A;background:#fff8ee;color:#7a5a10}
+.radio-option{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d0ccc0;border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:14px;background:#fff}
+.radio-option input{accent-color:#1F4E79}
+.feedback-correct{background:#f0f7f0;border:1px solid #c3dcc3;border-radius:8px;padding:10px 14px;font-size:13px;color:#2a5a2a;margin-top:6px}
+.feedback-incorrect{background:#fff8ee;border:1px solid #F0D5A0;border-radius:8px;padding:10px 14px;font-size:13px;color:#7a5a10;margin-top:6px}
+.gra-input{width:100%;padding:9px 12px;border:1px solid #d0ccc0;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-top:6px}
+.gra-input:focus{outline:none;border-color:#1F4E79}
+.comparison-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:600px){.comparison-wrap{grid-template-columns:1fr}}
+.essay-compare-block{background:#fff;border:0.5px solid #d0ccc0;border-radius:10px;padding:14px}
+.essay-compare-block p{font-size:13px;line-height:1.65;color:#333;white-space:pre-wrap}
+.improvement-card{border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:14px}
+.card-green{background:#F0F7F0;border:1px solid #C3DCC3;color:#2a5a2a}
+.card-amber{background:#FFF8EE;border:1px solid #F0D5A0;color:#7a5a10}
+.card-purple{background:#EEEDFE;border:1px solid #D0CCFA;color:#3C3489}
+.done-wrap{text-align:center;padding:60px 20px}
+.checkmark{width:64px;height:64px;border-radius:50%;background:#f0f7f0;border:2px solid #4A8B4E;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.inline-error{font-size:13px;color:#C4952A;margin-top:6px}
+.helper-text{font-size:12px;color:#888;margin-top:4px}
+.section-gap{margin-bottom:20px}
+.divider{border:none;border-top:0.5px solid #e0ddd6;margin:20px 0}
+.toggle-btn{background:transparent;border:none;color:#1F4E79;font-size:13px;cursor:pointer;padding:4px 0;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="pbar" style="width:0%"></div></div>
+
+<!-- SCREEN 1: Write Essay -->
+<div id="s1" class="screen active">
+  <h1 style="margin-bottom:4px">IELTS Writing Coach</h1>
+  <p style="font-size:14px;color:#666;margin-bottom:20px">Select a task, write your essay, and get targeted feedback.</p>
+  <div style="margin-bottom:20px">
+    <button class="task-btn" id="btn-t1" onclick="selectTask(1)">Writing Task 1</button>
+    <button class="task-btn" id="btn-t2" onclick="selectTask(2)">Writing Task 2</button>
+  </div>
+  <div id="task-prompt-area"></div>
+  <div style="margin-top:16px">
+    <textarea id="essay-input" placeholder="Write your essay here..." oninput="onEssayInput()"></textarea>
+    <div class="word-count" id="wc-display">0 words</div>
+  </div>
+  <div style="margin-top:14px">
+    <button class="btn btn-primary" id="submit-btn" disabled onclick="submitEssay()">Submit Essay</button>
+  </div>
+</div>
+
+<!-- SCREEN 2: Feedback -->
+<div id="s2" class="screen">
+  <h1>Examiner Feedback</h1>
+  <div id="s2-content"></div>
+  <div id="s2-gap-area" style="display:none;margin-top:24px">
+    <hr class="divider">
+    <span style="display:block;margin-bottom:6px;font-size:14px;font-weight:500;color:#1F4E79">Confirm your primary gap to continue:</span>
+    <input type="text" id="gap-input" placeholder="e.g. Coherence & Cohesion, Task Response..." oninput="onGapInput()">
+    <div class="helper-text" id="gap-helper"></div>
+    <div class="inline-error" id="gap-error" style="display:none"></div>
+    <div style="margin-top:12px"><button class="btn btn-primary" id="gap-continue-btn" disabled onclick="goToScreen3()">Continue</button></div>
+  </div>
+</div>
+
+<!-- SCREEN 3: Targeted Practice -->
+<div id="s3" class="screen">
+  <h1>Targeted Practice</h1>
+  <p style="font-size:14px;color:#666;margin-bottom:20px" id="s3-subtitle"></p>
+  <div id="s3-activity"></div>
+</div>
+
+<!-- SCREEN 4: Revise -->
+<div id="s4" class="screen">
+  <h1>Revise Your Essay</h1>
+  <p style="font-size:14px;color:#666;margin-bottom:16px" id="s4-subtitle"></p>
+  <button class="toggle-btn" id="orig-toggle" onclick="toggleOrig()">Show original essay</button>
+  <div id="orig-essay-display" style="display:none;margin:10px 0">
+    <div class="card" style="font-size:13px;line-height:1.65;color:#444;white-space:pre-wrap" id="orig-text"></div>
+  </div>
+  <div style="margin-top:16px">
+    <textarea id="revised-input" placeholder="Write your revised essay here..." oninput="onRevisedInput()" style="min-height:200px"></textarea>
+    <div class="word-count" id="revised-wc">0 words</div>
+  </div>
+  <div style="margin-top:14px">
+    <button class="btn btn-primary" id="revised-submit-btn" disabled onclick="submitRevised()">Submit Revision</button>
+  </div>
+  <div id="s4-results" style="display:none;margin-top:24px"></div>
+</div>
+
+<!-- SCREEN 5: Done -->
+<div id="s5" class="screen">
+  <div class="done-wrap">
+    <div class="checkmark">✓</div>
+    <h1 style="margin-bottom:12px">Session Complete</h1>
+    <p style="font-size:15px;color:#555;max-width:400px;margin:0 auto 28px;line-height:1.65">Consistent targeted practice like this is exactly how IELTS band scores improve. Each session builds precision — keep going.</p>
+    <button class="btn btn-primary" onclick="resetSession()">Start a new session</button>
+  </div>
+</div>
+
+<script>
+const STATE = {
+  taskNum: null, essay: '', gap: null, detectedActivity: 'CC',
+  revisedEssay: '', origVisible: false
+};
+
+const TASK1_PROMPT = "The chart below shows the percentage of households with internet access in five countries between 2010 and 2020. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.";
+const TASK2_PROMPT = "Some people believe that technology has made it harder for people to concentrate. Others think it has improved our ability to focus. Discuss both views and give your own opinion.";
+
+// ── Rule-based feedback bank ──────────────────────────────────────────────
+const FEEDBACK = {
+  CC: {
+    label: 'Coherence & Cohesion',
+    why: 'Without clear linking devices and logical paragraph flow, examiners cannot follow your argument — this directly caps your CC score at Band 5.',
+    strategies: [
+      'Open each body paragraph with a clear topic sentence, then support it with one example or piece of evidence before concluding the point.',
+      'Use a variety of cohesive devices — additive (furthermore, in addition), contrastive (however, nevertheless), and causal (therefore, as a result) — rather than repeating "also" or "and".'
+    ],
+    stronger: 'While some argue that technology shortens attention spans, others contend that it has, in fact, sharpened focus by enabling individuals to filter information more efficiently.',
+    weakSentence: 'Technology has good and bad effects and people have different opinions about it.'
+  },
+  TR: {
+    label: 'Task Response',
+    why: 'A vague or one-sided response fails to fully address all parts of the task, which prevents the essay from scoring above Band 5 on Task Response.',
+    strategies: [
+      'Re-read the question and underline every sub-task (e.g. "discuss both views AND give your opinion"). Make sure each part gets at least one full paragraph.',
+      'State your position explicitly in the introduction and return to it in the conclusion — examiners should never have to guess your view.'
+    ],
+    stronger: 'Although technology can fragment attention through constant notifications, I believe its net effect is positive because productivity tools and focus applications have demonstrably improved concentration for many users.',
+    weakSentence: 'Nowadays technology affects our lives in many ways and there are advantages and disadvantages.'
+  },
+  TA: {
+    label: 'Task Achievement',
+    why: 'Failing to identify the key trend or overview in a data-based task means the response does not fulfil the basic requirement of Task 1, capping the score at Band 5.',
+    strategies: [
+      'Always write a two-sentence overview paragraph summarising the most striking overall trend — do not describe every figure.',
+      'Select two or three key features for your body paragraphs and support each with specific data from the chart.'
+    ],
+    stronger: 'Overall, internet access rose across all five countries between 2010 and 2020, with South Korea and Germany consistently recording the highest rates, while Nigeria showed the most modest growth.',
+    weakSentence: 'The chart shows information about internet access in five countries from 2010 to 2020.'
+  },
+  LR: {
+    label: 'Lexical Resource',
+    why: 'Repetitive or imprecise vocabulary signals a limited range, which examiners penalise heavily — it is one of the fastest ways to lose marks at Band 6 and above.',
+    strategies: [
+      'For each key noun (e.g. "increase"), prepare a set of synonyms and collocations: rise, surge, climb, grow, escalate — and pair them with precise adverbs (sharply, gradually, marginally).',
+      'Avoid repeating the same word more than once per paragraph; use pronouns, synonyms, or superordinates to vary reference.'
+    ],
+    stronger: 'The proliferation of digital devices has sparked considerable debate about their impact on human cognition, particularly regarding sustained attention.',
+    weakSentence: 'Technology is very important and people use technology a lot every day because technology helps people.'
+  },
+  GRA: {
+    label: 'Grammatical Range & Accuracy',
+    why: 'Frequent grammatical errors — especially with articles, prepositions, and subject-verb agreement — make writing harder to read and signal a limited range to the examiner.',
+    strategies: [
+      'Vary your sentence structures deliberately: use at least one complex sentence (with a subordinate clause) and one compound sentence per paragraph.',
+      'Proofread specifically for the three most common IELTS errors: missing articles (a/an/the), wrong prepositions (despite of → despite), and subject-verb agreement.'
+    ],
+    stronger: 'Despite the widespread adoption of smartphones, a significant proportion of users have developed strategies to minimise distractions, suggesting that technology itself is not inherently harmful to concentration.',
+    weakSentence: 'Despite of the benefits, many peoples still prefer to using traditional method of learning.'
+  }
+};
+
+// ── Detect weakest criterion from essay text ───────────────────────────────
+function analyseEssay(text, taskNum) {
+  const t = text.toLowerCase();
+  const wc = countWords(text);
+  const scores = {CC:0, TR:0, TA:0, LR:0, GRA:0};
+
+  // CC signals
+  const cohesive = ['however','furthermore','moreover','therefore','in addition','consequently','nevertheless','in contrast','as a result','on the other hand','firstly','secondly','finally','in conclusion'];
+  const ccHits = cohesive.filter(w=>t.includes(w)).length;
+  if (ccHits < 3) scores.CC += 3;
+  if (ccHits < 1) scores.CC += 2;
+  if ((t.match(/\band\b/g)||[]).length > 8) scores.CC += 2;
+
+  // TR/TA signals
+  if (taskNum === 2) {
+    const positionWords = ['i believe','i think','in my opinion','i argue','i contend','my view','i feel'];
+    if (!positionWords.some(w=>t.includes(w))) scores.TR += 4;
+    if (!t.includes('both')) scores.TR += 1;
+    if (wc < 180) scores.TR += 3;
+  } else {
+    if (!t.includes('overall') && !t.includes('general') && !t.includes('in general')) scores.TA += 4;
+    if (wc < 120) scores.TA += 3;
+  }
+
+  // LR signals
+  const words = t.split(/\s+/);
+  const freq = {};
+  words.forEach(w=>{ if(w.length>4) freq[w]=(freq[w]||0)+1; });
+  const repeated = Object.values(freq).filter(c=>c>3).length;
+  if (repeated > 3) scores.LR += 3;
+  if (repeated > 6) scores.LR += 2;
+  const vague = ['very','a lot','things','stuff','good','bad','big','many things','in many ways'];
+  scores.LR += vague.filter(w=>t.includes(w)).length;
+
+  // GRA signals
+  const graErrors = ['despite of','because of that','more better','peoples','informations','advices','more easier','would can','its means','in the other hand'];
+  scores.GRA += graErrors.filter(e=>t.includes(e)).length * 2;
+  const sentences = text.split(/[.!?]+/).filter(s=>s.trim().length>0);
+  const avgLen = sentences.length ? words.length/sentences.length : 20;
+  if (avgLen < 10 || avgLen > 35) scores.GRA += 2;
+
+  // pick highest score; if tie, pick by task relevance
+  const relevant = taskNum===1 ? ['TA','CC','LR','GRA'] : ['TR','CC','LR','GRA'];
+  let best = relevant[0], bestScore = -1;
+  relevant.forEach(k=>{ if(scores[k]>bestScore){bestScore=scores[k];best=k;} });
+  return best;
+}
+
+// ── Extract a sentence from the essay to quote ────────────────────────────
+function extractWeakSentence(text, gapKey) {
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(s=>s.trim().length>10);
+  if (!sentences.length) return text.slice(0,120)+'...';
+  // prefer shortest substantive sentence (often weakest)
+  const sorted = [...sentences].sort((a,b)=>a.length-b.length);
+  return sorted[0].trim();
+}
+
+// ── Revision comparison (rule-based) ─────────────────────────────────────
+function compareEssays(orig, revised, gapKey) {
+  const origWC = countWords(orig), revWC = countWords(revised);
+  const fb = FEEDBACK[gapKey];
+
+  let improvement = '', stillNeeds = '', nextStep = '';
+
+  const origT = orig.toLowerCase(), revT = revised.toLowerCase();
+
+  if (gapKey === 'CC') {
+    const cohesive = ['however','furthermore','moreover','therefore','in addition','consequently','nevertheless','in contrast','as a result','firstly','secondly','finally'];
+    const origHits = cohesive.filter(w=>origT.includes(w)).length;
+    const revHits  = cohesive.filter(w=>revT.includes(w)).length;
+    improvement = revHits > origHits
+      ? `You added ${revHits - origHits} more cohesive device(s) in your revision, which improves the logical flow between ideas.`
+      : `Your revision maintains a similar level of cohesion to the original. Try inserting linking phrases at the start of each new point.`;
+    stillNeeds = revHits < 4
+      ? `The revised essay still uses fewer than 4 cohesive devices — aim for at least one per paragraph to show range.`
+      : `Check that your cohesive devices are varied; over-relying on a single phrase (e.g. "however") will still limit your CC score.`;
+    nextStep = `Write one additional body paragraph that opens with a topic sentence, develops a point with an example, and closes with a mini-conclusion using "therefore" or "as a result".`;
+  } else if (gapKey === 'TR') {
+    const posWords = ['i believe','i think','in my opinion','i argue','i contend'];
+    const origPos = posWords.some(w=>origT.includes(w));
+    const revPos  = posWords.some(w=>revT.includes(w));
+    improvement = !origPos && revPos
+      ? `You added a clear personal position in your revision, which directly addresses the "give your own opinion" requirement.`
+      : revWC > origWC + 30
+      ? `Your revision is longer and more developed, suggesting a fuller treatment of both views.`
+      : `Your revision shows an attempt to address the prompt more fully — make sure both sides of the argument have equal paragraph weight.`;
+    stillNeeds = !revT.includes('both') && !revT.includes('on the other hand') && !revT.includes('however')
+      ? `The revision may not fully discuss both views — ensure each perspective gets its own body paragraph before you give your opinion.`
+      : `Make sure your conclusion restates your position clearly rather than introducing new ideas.`;
+    nextStep = `Practise writing a one-sentence thesis that names both views and states your position, e.g. "While X, I believe Y because Z."`;
+  } else if (gapKey === 'TA') {
+    const hasOverview = revT.includes('overall') || revT.includes('in general') || revT.includes('generally');
+    improvement = hasOverview
+      ? `Your revision includes an overview statement, which is the most important addition for Task 1 and directly raises your Task Achievement score.`
+      : `Your revision is more detailed than the original — now focus on adding a clear two-sentence overview paragraph after the introduction.`;
+    stillNeeds = !hasOverview
+      ? `The revision still lacks an explicit overview. Examiners look for a paragraph that states the main trend without listing every figure.`
+      : `Ensure the overview covers the most striking pattern (e.g. the country with the highest/lowest value) rather than describing all data points.`;
+    nextStep = `Write one overview sentence that begins with "Overall, …" and identifies the single most notable trend in the chart.`;
+  } else if (gapKey === 'LR') {
+    const origWords = origT.split(/\s+/);
+    const revWords  = revT.split(/\s+/);
+    const origFreq  = {}, revFreq = {};
+    origWords.forEach(w=>{ if(w.length>4) origFreq[w]=(origFreq[w]||0)+1; });
+    revWords.forEach(w=>{  if(w.length>4) revFreq[w]=(revFreq[w]||0)+1;  });
+    const origRep = Object.values(origFreq).filter(c=>c>3).length;
+    const revRep  = Object.values(revFreq).filter(c=>c>3).length;
+    improvement = revRep < origRep
+      ? `Your revision reduces repetitive vocabulary — there are fewer words appearing more than 3 times, showing a wider lexical range.`
+      : `Your revision attempts more varied sentence constructions, which contributes positively to Lexical Resource.`;
+    stillNeeds = `Continue building topic-specific vocabulary. For this task, prepare synonyms for key verbs (rise→surge, drop→plummet) and nouns (increase→growth, people→individuals).`;
+    nextStep = `Take the three most repeated words in your revised essay and replace each with two different synonyms or collocations.`;
+  } else { // GRA
+    improvement = revWC > origWC
+      ? `Your revision is more developed, giving you more opportunity to demonstrate grammatical range through varied sentence structures.`
+      : `Your revision shows an attempt to correct specific errors — focus next on varying sentence structure (simple, compound, complex).`;
+    stillNeeds = `Proofread for the three most common errors: articles (a/an/the), prepositions (despite of → despite), and subject-verb agreement (people is → people are).`;
+    nextStep = `Write three sentences on this topic: one simple, one compound (using "and/but/so"), and one complex (using "although/because/which"). This trains structural variety deliberately.`;
+  }
+
+  return { improvement, stillNeeds, nextStep };
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function countWords(t){ return t.trim().split(/\s+/).filter(Boolean).length; }
+
+function setScreen(n) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('pbar').style.width=(((n-1)/4)*100)+'%';
+  window.scrollTo(0,0);
+}
+
+function selectTask(n) {
+  STATE.taskNum = n;
+  document.getElementById('btn-t1').classList.toggle('active',n===1);
+  document.getElementById('btn-t2').classList.toggle('active',n===2);
+  renderTaskPrompt();
+  validateS1();
+}
+
+function renderTaskPrompt() {
+  const area = document.getElementById('task-prompt-area');
+  if (STATE.taskNum===1) {
+    area.innerHTML=`<div class="card" style="margin-bottom:12px">
+      <p style="font-size:14px;line-height:1.65;color:#333;margin-bottom:14px">${TASK1_PROMPT}</p>
+      <div style="width:100%;max-width:620px">${buildChart()}</div>
+    </div><div class="goal-box">Your focus today: improving your writing.</div>`;
+  } else {
+    area.innerHTML=`<div class="card" style="margin-bottom:12px">
+      <p style="font-size:14px;line-height:1.65;color:#333">${TASK2_PROMPT}</p>
+    </div><div class="goal-box">Your focus today: improving your writing.</div>`;
+  }
+}
+
+function buildChart() {
+  const data=[
+    {name:'Germany',  color:'#1F4E79',vals:[72,86,92]},
+    {name:'S. Korea', color:'#C4952A',vals:[77,87,96]},
+    {name:'Australia',color:'#4A8B4E',vals:[68,84,90]},
+    {name:'Brazil',   color:'#7F77DD',vals:[35,54,71]},
+    {name:'Nigeria',  color:'#D85A30',vals:[14,30,47]}
+  ];
+  const W=600,PT=20,PB=10,PL=36,PR=90,chartH=220,legendH=52,H=PT+chartH+PB+legendH;
+  const cW=W-PL-PR;
+  const xOf=i=>PL+i*(cW/2), yOf=v=>PT+chartH-(v/100)*chartH;
+  let svg='';
+  [0,25,50,75,100].forEach(v=>{
+    const y=yOf(v);
+    svg+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e0ddd6" stroke-width="0.5"/>`;
+    svg+=`<text x="${PL-5}" y="${y+4}" font-size="10" fill="#999" text-anchor="end" font-family="sans-serif">${v}%</text>`;
+  });
+  [2010,2015,2020].forEach((yr,i)=>{
+    svg+=`<text x="${xOf(i)}" y="${PT+chartH+14}" font-size="10" fill="#999" text-anchor="middle" font-family="sans-serif">${yr}</text>`;
+  });
+  const sorted=[...data].sort((a,b)=>b.vals[2]-a.vals[2]);
+  const minGap=14, labelPositions=[];
+  sorted.forEach((d,i)=>{
+    let y=yOf(d.vals[2]);
+    if(i>0&&labelPositions[i-1]-y<minGap) y=labelPositions[i-1]-minGap;
+    labelPositions.push(y);
+  });
+  const labelYMap={};
+  sorted.forEach((d,i)=>{labelYMap[d.name]=labelPositions[i];});
+  data.forEach(d=>{
+    const pts=d.vals.map((v,i)=>`${xOf(i)},${yOf(v)}`).join(' ');
+    svg+=`<polyline points="${pts}" fill="none" stroke="${d.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    d.vals.forEach((v,i)=>{svg+=`<circle cx="${xOf(i)}" cy="${yOf(v)}" r="3.5" fill="${d.color}"/>`;});
+    const dataY=yOf(d.vals[2]),lblY=labelYMap[d.name],lx=xOf(2)+10;
+    if(Math.abs(dataY-lblY)>2) svg+=`<line x1="${xOf(2)+3}" y1="${dataY}" x2="${lx-2}" y2="${lblY}" stroke="${d.color}" stroke-width="0.8" stroke-dasharray="2,2"/>`;
+    svg+=`<text x="${lx}" y="${lblY+4}" font-size="10" fill="${d.color}" font-family="sans-serif" font-weight="500">${d.name} ${d.vals[2]}%</text>`;
+  });
+  const lY1=PT+chartH+PB+20, lY2=lY1+18, iW=110;
+  [data.slice(0,3),data.slice(3)].forEach((row,ri)=>{
+    const lY=ri===0?lY1:lY2, startX=(W-row.length*iW)/2;
+    row.forEach((d,i)=>{
+      const lx=startX+i*iW;
+      svg+=`<rect x="${lx}" y="${lY-8}" width="14" height="3" fill="${d.color}" rx="1"/>`;
+      svg+=`<text x="${lx+18}" y="${lY}" font-size="10" fill="#555" font-family="sans-serif">${d.name}</text>`;
+    });
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">${svg}</svg>`;
+}
+
+function onEssayInput() {
+  STATE.essay = document.getElementById('essay-input').value;
+  document.getElementById('wc-display').textContent = countWords(STATE.essay)+' words';
+  validateS1();
+}
+function validateS1() {
+  document.getElementById('submit-btn').disabled = !(STATE.taskNum && countWords(STATE.essay)>=50);
+}
+
+function submitEssay() {
+  const gapKey = analyseEssay(STATE.essay, STATE.taskNum);
+  STATE.gap = gapKey;
+  STATE.detectedActivity = gapKey;
+  const fb = FEEDBACK[gapKey];
+  const weakQ = extractWeakSentence(STATE.essay, gapKey);
+  const tNum = STATE.taskNum;
+  const helperText = tNum===1
+    ? 'e.g. Task Achievement, Coherence & Cohesion, Lexical Resource, Grammatical Range and Accuracy'
+    : 'e.g. Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range and Accuracy';
+
+  document.getElementById('s2-content').innerHTML=`
+    <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px">
+      <div>
+        <span style="display:block;margin-bottom:6px;font-size:12px;font-weight:500;color:#888">PRIMARY GAP</span>
+        <span class="badge">${fb.label}</span>
+      </div>
+      <div class="card" style="flex:1;min-width:200px;margin-bottom:0">
+        <span style="display:block;margin-bottom:4px;font-size:12px;font-weight:500;color:#888">WHY THIS MATTERS</span>
+        <span style="font-size:14px;color:#333">${fb.why}</span>
+      </div>
+    </div>
+    <div class="section-gap">
+      <span style="display:block;margin-bottom:6px;font-size:12px;font-weight:500;color:#888">FROM YOUR ESSAY</span>
+      <div class="quote-block">${weakQ}</div>
+    </div>
+    <div class="section-gap">
+      <span style="display:block;margin-bottom:10px;font-size:12px;font-weight:500;color:#888">IMPROVEMENT STRATEGIES</span>
+      <div class="strategy-item"><div class="strategy-num">1</div><div style="font-size:14px;color:#333">${fb.strategies[0]}</div></div>
+      <div class="strategy-item"><div class="strategy-num">2</div><div style="font-size:14px;color:#333">${fb.strategies[1]}</div></div>
+    </div>
+    <div class="section-gap">
+      <span style="display:block;margin-bottom:6px;font-size:12px;font-weight:500;color:#888">STRONGER VERSION</span>
+      <div class="stronger-block">${fb.stronger}</div>
+    </div>`;
+
+  document.getElementById('gap-helper').textContent = helperText;
+  document.getElementById('gap-input').value = fb.label;
+  STATE.gapInput = fb.label;
+  document.getElementById('gap-continue-btn').disabled = false;
+  document.getElementById('s2-gap-area').style.display = 'block';
+  setScreen(2);
+}
+
+function onGapInput() {
+  const val = document.getElementById('gap-input').value.trim();
+  STATE.gapInput = val;
+  document.getElementById('gap-continue-btn').disabled = val.length===0;
+  document.getElementById('gap-error').style.display='none';
+}
+
+function detectActivityFromText(gap) {
+  const g = gap.toLowerCase();
+  if (/cohes|coherence|\bcc\b/.test(g)) return 'CC';
+  if (/task response|\btr\b/.test(g)) return 'TR';
+  if (/task achieve|\bta\b/.test(g)) return 'TA';
+  if (/lexical|\blr\b/.test(g)) return 'LR';
+  if (/grammar|grammatical|\bgra\b/.test(g)) return 'GRA';
+  return STATE.gap || 'CC';
+}
+
+function goToScreen3() {
+  STATE.detectedActivity = detectActivityFromText(document.getElementById('gap-input').value);
+  setScreen(3);
+  renderS3();
+}
+
+function renderS3() {
+  const act = STATE.detectedActivity;
+  const tNum = STATE.taskNum||2;
+  const labels = {CC:'Coherence & Cohesion',TR:'Task Response',TA:'Task Achievement',LR:'Lexical Resource',GRA:'Grammatical Range & Accuracy'};
+  document.getElementById('s3-subtitle').textContent = 'Practising: '+(labels[act]||act);
+  const area = document.getElementById('s3-activity');
+  if (act==='CC') renderCC(area,tNum);
+  else if (act==='TR'||act==='TA') renderTRTA(area,tNum,act);
+  else if (act==='LR') renderLR(area,tNum);
+  else renderGRA(area);
+}
+
+// ── Activity: CC ──────────────────────────────────────────────────────────
+function renderCC(area, tNum) {
+  const correct = tNum===1 ? [
+    'Overall, internet access increased in all five countries between 2010 and 2020.',
+    'South Korea and Germany recorded the highest rates, both exceeding 90% by 2020.',
+    'In contrast, Nigeria saw the most modest growth, rising from 14% to just 47%.',
+    'Despite this gap, all countries showed a consistent upward trend across the decade.'
+  ] : [
+    'Remote work has become increasingly common in many industries worldwide.',
+    'While this shift offers flexibility, it also raises concerns about workplace communication.',
+    'For example, teams that rely on digital messaging often experience delays in decision-making.',
+    'As a result, organizations must find ways to maintain collaboration despite physical distance.'
+  ];
+  const shuffleIdx = tNum===1 ? [2,0,3,1] : [1,3,0,2];
+  let current = shuffleIdx.map(i=>correct[i]);
+  let selected = null;
+  function render() {
+    area.innerHTML=`<p style="font-size:14px;color:#555;margin-bottom:14px">Click a sentence to select it, then click another to swap. When ready, click "Check Order".</p>`+
+      current.map((s,i)=>`<div class="activity-sentence" id="cc-s${i}" onclick="ccClick(${i})">${s}</div>`).join('')+
+      `<button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="checkCC()">Check Order</button><div id="cc-result" style="margin-top:14px"></div>`;
+    window.ccClick=i=>{
+      if(selected===null){selected=i;document.getElementById('cc-s'+i).classList.add('selected');}
+      else if(selected===i){selected=null;document.getElementById('cc-s'+i).classList.remove('selected');}
+      else{[current[selected],current[i]]=[current[i],current[selected]];selected=null;render();}
+    };
+    window.checkCC=()=>{
+      const ok=current.filter((s,i)=>s===correct[i]).length;
+      const res=document.getElementById('cc-result');
+      current.forEach((s,i)=>{const el=document.getElementById('cc-s'+i);el.classList.remove('selected');if(s===correct[i])el.classList.add('correct');else el.classList.add('incorrect');});
+      if(ok===4){
+        res.innerHTML=`<div class="feedback-correct">✓ Correct order! The paragraph flows from overview → key data → contrast → conclusion.</div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="goToS4()">Continue</button>`;
+      } else {
+        res.innerHTML=`<div class="feedback-incorrect">${ok} of 4 correct. Right order:<br><br>`+correct.map((s,i)=>`<div style="margin-bottom:4px"><strong>${i+1}.</strong> ${s}</div>`).join('')+`</div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="goToS4()">Continue</button>`;
+      }
+    };
+  }
+  render();
+}
+
+// ── Activity: TR / TA ─────────────────────────────────────────────────────
+function renderTRTA(area, tNum, act) {
+  const isTA = act==='TA';
+  const prompt = isTA
+    ? `<strong>Task:</strong> ${TASK1_PROMPT}<br><br><strong>Weak overview:</strong> "The chart shows information about internet access in five countries from 2010 to 2020."<br><br>Rewrite this as a stronger overview that identifies the main trend without listing every data point.`
+    : `<strong>Task:</strong> ${TASK2_PROMPT}<br><br><strong>Weak sentence:</strong> "Nowadays, technology is everywhere and affects many aspects of our lives."<br><br>Rewrite this with a clear position that addresses both views.`;
+  const signals = isTA
+    ? ['overall','general trend','all countries','in general','broadly','rose','increased','grew']
+    : ['i believe','i think','in my opinion','i argue','i contend','my view','outweigh','argue that','clearly'];
+
+  area.innerHTML=`<div class="card" style="margin-bottom:14px;font-size:14px;line-height:1.65;color:#333">${prompt}</div>
+    <textarea id="trta-input" placeholder="Your rewrite..." style="min-height:100px" oninput="this.nextElementSibling.disabled=false"></textarea>
+    <button class="btn btn-primary btn-sm" style="margin-top:10px" id="trta-submit" onclick="checkTRTA()" disabled>Submit</button>
+    <div id="trta-result" style="margin-top:14px"></div>`;
+
+  window.checkTRTA=()=>{
+    const input=document.getElementById('trta-input').value.trim();
+    if(countWords(input)<8){document.getElementById('trta-result').innerHTML=`<div class="feedback-incorrect">Please write a complete sentence (at least 8 words).</div>`;return;}
+    const matched=signals.some(s=>input.toLowerCase().includes(s));
+    document.getElementById('trta-result').innerHTML = matched
+      ? `<div class="feedback-correct">✓ Good — your rewrite ${isTA?'identifies a main trend':'takes a clear position'}. That directly addresses the examiner's requirement.</div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="goToS4()">Continue</button>`
+      : `<div class="feedback-incorrect">Your rewrite is a start, but it doesn't yet ${isTA?'state an overall trend (try starting with "Overall, …")':'express a clear opinion (try "I believe…" or "I argue…")'}.</div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="goToS4()">Continue anyway</button>`;
+  };
+}
+
+// ── Activity: LR ──────────────────────────────────────────────────────────
+function renderLR(area, tNum) {
+  const q = tNum===1 ? [
+    {stem:'Internet access in South Korea ___ from 77% in 2010 to 96% in 2020.',options:['went up','rose','got higher'],correct:1,exp:'"Rose" is the precise academic verb for an upward trend.'},
+    {stem:'The proportion of households with access saw a ___ increase in Brazil over the decade.',options:['sharp','big','fast'],correct:0,exp:'"Sharp" is the precise collocate for a steep or significant increase.'}
+  ] : [
+    {stem:'The number of people using digital devices ___ significantly over the past decade.',options:['went up','rose','got bigger'],correct:1,exp:'"Rose" is the precise academic verb here.'},
+    {stem:'Researchers have found a ___ link between screen time and reduced attention span.',options:['clear','big','much'],correct:0,exp:'"Clear" is the precise academic adjective — "big link" is informal.'}
+  ];
+  area.innerHTML=q.map((item,qi)=>`<div class="card section-gap"><p style="font-size:14px;margin-bottom:10px;color:#333">${item.stem}</p>${item.options.map((o,oi)=>`<label class="radio-option"><input type="radio" name="lr-q${qi}" value="${oi}"> ${o}</label>`).join('')}<div id="lr-fb${qi}" style="display:none"></div></div>`).join('')+
+    `<div id="lr-incomplete" class="inline-error" style="display:none">Please answer both questions.</div>
+    <button class="btn btn-primary btn-sm" onclick="submitLR()">Submit</button>
+    <div id="lr-continue" style="display:none;margin-top:14px"></div>`;
+  window.submitLR=()=>{
+    const a0=document.querySelector('input[name="lr-q0"]:checked');
+    const a1=document.querySelector('input[name="lr-q1"]:checked');
+    if(!a0||!a1){document.getElementById('lr-incomplete').style.display='block';return;}
+    document.getElementById('lr-incomplete').style.display='none';
+    [a0,a1].forEach((a,i)=>{
+      const isC=parseInt(a.value)===q[i].correct;
+      const fb=document.getElementById(`lr-fb${i}`);
+      fb.style.display='block';
+      fb.innerHTML=isC?`<div class="feedback-correct">✓ Correct. ${q[i].exp}</div>`:`<div class="feedback-incorrect">The best answer is "${q[i].options[q[i].correct]}". ${q[i].exp}</div>`;
+    });
+    document.querySelector('button[onclick="submitLR()"]').style.display='none';
+    document.getElementById('lr-continue').innerHTML='<button class="btn btn-primary btn-sm" onclick="goToS4()">Continue</button>';
+    document.getElementById('lr-continue').style.display='block';
+  };
+}
+
+// ── Activity: GRA ─────────────────────────────────────────────────────────
+function renderGRA(area) {
+  area.innerHTML=`<p style="font-size:14px;color:#555;margin-bottom:16px">Correct the grammar error in each sentence.</p>
+    <div class="card section-gap">
+      <p style="font-size:14px;color:#333;margin-bottom:8px;font-style:italic">"Despite of the benefits, many people still prefer traditional methods."</p>
+      <input class="gra-input" id="gra-s1" placeholder="Type your correction...">
+      <div id="gra-fb1" style="display:none"></div>
+    </div>
+    <div class="card section-gap">
+      <p style="font-size:14px;color:#333;margin-bottom:8px;font-style:italic">"The data shows that young people are more likely using social media than older generations."</p>
+      <input class="gra-input" id="gra-s2" placeholder="Type your correction...">
+      <div id="gra-fb2" style="display:none"></div>
+    </div>
+    <div id="gra-incomplete" class="inline-error" style="display:none">Please answer both questions.</div>
+    <button class="btn btn-primary btn-sm" onclick="submitGRA()">Submit</button>
+    <div id="gra-continue" style="display:none;margin-top:14px"></div>`;
+  window.submitGRA=()=>{
+    const n=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim();
+    const n1=n(document.getElementById('gra-s1').value);
+    const n2=n(document.getElementById('gra-s2').value);
+    if(n1.length<3||n2.length<3){document.getElementById('gra-incomplete').style.display='block';return;}
+    document.getElementById('gra-incomplete').style.display='none';
+    const c1=n1.includes('despite the')||(!n1.includes('despite of'));
+    const c2=n2.includes('to use')||n2.includes('likely to');
+    const fb1=document.getElementById('gra-fb1'),fb2=document.getElementById('gra-fb2');
+    fb1.style.display='block';fb2.style.display='block';
+    fb1.innerHTML=c1?`<div class="feedback-correct">✓ Correct. "Despite" is never followed by "of".</div>`:`<div class="feedback-incorrect">Remove "of" — the correct form is "Despite the benefits, …"</div>`;
+    fb2.innerHTML=c2?`<div class="feedback-correct">✓ Correct. "More likely" must be followed by "to + infinitive".</div>`:`<div class="feedback-incorrect">Change to "more likely to use" — "more likely" requires "to + infinitive", not a gerund.</div>`;
+    document.querySelector('button[onclick="submitGRA()"]').style.display='none';
+    document.getElementById('gra-continue').innerHTML='<button class="btn btn-primary btn-sm" onclick="goToS4()">Continue</button>';
+    document.getElementById('gra-continue').style.display='block';
+  };
+}
+
+// ── Screen 4 ──────────────────────────────────────────────────────────────
+function goToS4() {
+  setScreen(4);
+  document.getElementById('s4-subtitle').textContent=`Gap practised: ${FEEDBACK[STATE.detectedActivity]?.label||STATE.detectedActivity} — Task ${STATE.taskNum}`;
+  document.getElementById('orig-text').textContent=STATE.essay;
+}
+
+function toggleOrig() {
+  STATE.origVisible=!STATE.origVisible;
+  document.getElementById('orig-essay-display').style.display=STATE.origVisible?'block':'none';
+  document.getElementById('orig-toggle').textContent=STATE.origVisible?'Hide original essay':'Show original essay';
+}
+
+function onRevisedInput() {
+  STATE.revisedEssay=document.getElementById('revised-input').value;
+  document.getElementById('revised-wc').textContent=countWords(STATE.revisedEssay)+' words';
+  document.getElementById('revised-submit-btn').disabled=countWords(STATE.revisedEssay)<50;
+}
+
+function submitRevised() {
+  const {improvement,stillNeeds,nextStep}=compareEssays(STATE.essay,STATE.revisedEssay,STATE.detectedActivity);
+  document.getElementById('s4-results').innerHTML=`
+    <div class="comparison-wrap">
+      <div class="essay-compare-block"><span style="display:block;margin-bottom:8px;font-size:12px;font-weight:500;color:#1F4E79">YOUR ORIGINAL ESSAY</span><p>${STATE.essay}</p></div>
+      <div class="essay-compare-block"><span style="display:block;margin-bottom:8px;font-size:12px;font-weight:500;color:#1F4E79">YOUR REVISED ESSAY</span><p>${STATE.revisedEssay}</p></div>
+    </div>
+    <div class="improvement-card card-green"><strong style="font-size:13px">✓ Improvement</strong><br><span style="font-size:14px">${improvement}</span></div>
+    <div class="improvement-card card-amber"><strong style="font-size:13px">◎ Still needs work</strong><br><span style="font-size:14px">${stillNeeds}</span></div>
+    <div class="improvement-card card-purple"><strong style="font-size:13px">→ Next step</strong><br><span style="font-size:14px">${nextStep}</span></div>
+    <div style="margin-top:20px"><button class="btn btn-primary" onclick="setScreen(5)">Finish Session →</button></div>`;
+  document.getElementById('s4-results').style.display='block';
+  document.getElementById('revised-submit-btn').disabled=true;
+}
+
+// ── Reset ─────────────────────────────────────────────────────────────────
+function resetSession() {
+  Object.assign(STATE,{taskNum:null,essay:'',gap:null,detectedActivity:'CC',revisedEssay:'',origVisible:false});
+  ['essay-input','revised-input'].forEach(id=>{const el=document.getElementById(id);el.value='';el.disabled=false;});
+  document.getElementById('wc-display').textContent='0 words';
+  document.getElementById('revised-wc').textContent='0 words';
+  document.getElementById('task-prompt-area').innerHTML='';
+  document.getElementById('btn-t1').classList.remove('active');
+  document.getElementById('btn-t2').classList.remove('active');
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('revised-submit-btn').disabled=true;
+  document.getElementById('s2-content').innerHTML='';
+  document.getElementById('s2-gap-area').style.display='none';
+  document.getElementById('s4-results').style.display='none';
+  document.getElementById('orig-essay-display').style.display='none';
+  document.getElementById('orig-toggle').textContent='Show original essay';
+  setScreen(1);
+}
+</script>
+</body>
+</html>
